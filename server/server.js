@@ -2,14 +2,16 @@ import Express from 'express';
 import ReactController from './react-controller.js';
 
 export default class Server {
-    constructor() {
+    constructor(passport, db) {
+        this.passport = passport
+        this.db = db
         this.express = new Express();
-        this.port = 8091;
+        this.port = process.env.port;
     }
     start() {
         this.addRoutes();
         this.express.listen(this.port, ()=>{
-            console.log('Listening on http://localhost:' + this.port)
+            console.log('Listening on port ' + this.port)
         });
     }
     addRoutes() {
@@ -26,6 +28,9 @@ export default class Server {
 
     }
     addAuthRoutes() {
-
+        this.express.get('/auth/github', this.passport.authorize('github', { failureRedirect: '/auth/error' }));
+        this.express.get('/auth/github/callback', this.passport.authorize('github', { failureRedirect: '/auth/error' }, (req, res) => {
+            console.log(req);
+        }))
     }
 }
