@@ -2,7 +2,7 @@ import { Strategy } from 'passport-github';
 
 export default class GitHubProvider {
     static configure(passport, db) {
-        db.Provider.create({
+        db.findOrCreateProvider({
             'name': 'GitHub',
             'slug': 'github',
             'description': 'Earn points for your hard-earned commits and other work.'
@@ -31,16 +31,20 @@ export default class GitHubProvider {
                             // found this github user already in our database
                             if (req.user) {
                                 // logged in, reject this cuz it belongs to another account
+                                done(false, req.user, { 'message': 'This GitHub account is already associated with another account.'})
                                 // TODO
                             } else {
                                 // not logged in, log them in to this account
                                 token.getUser((user) => {
-                                    req.login(user)
-                                    // redirect to frontpage
+                                    done(false, user, { 'justLoggedIn': true })
                                 })
                             }
                         } else {
                             // this is a token we haven't seen before
+                            const token = {
+                                providerId: provider.providerId,
+                                remoteId, remoteUsername, accessToken, refreshToken
+                            }
                             if (!req.user) {
                                 // not logged in, create account
                                 db.findAvailableSlug(remoteUsername, (slug) => {
@@ -48,21 +52,16 @@ export default class GitHubProvider {
                                         slug, emailAddress
                                     }).then((user) => {
                                         // attach token
-                                        db.Token.create({
-                                            userId: user.userId,
-                                            providerId: provider.id,
-                                            remoteId, remoteUsername, accessToken, refreshToken
-                                        })
-                                        req.login(user)
-                                        // TODO welcome to devbadges
+                                        token.userId = user.userId
+                                        db.Token.create(token).then(()=>
+                                            done(false, user, { 'justCreatedAccount': true }));
                                     })
                                 })
                             } else {
                                 // attach token
-                                db.Token.create({
-                                    userId: req.user.userId,
-                                    providerId: provider.id,
-                                    remoteId, remoteUsername, accessToken, refreshToken
+                                token.userId = req.user.userId
+                                db.Token.create(token).then(token => {
+                                    done(false, req.user, { token })
                                 })
                             }
                         }

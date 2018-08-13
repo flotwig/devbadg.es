@@ -1,6 +1,8 @@
-NODE_ENV=production
+NODE_ENV=development
 PORT=8091
 BASE_URL=http://localhost:8091
+SESSION_SECRET=my-big-secret
+USE_SUBDOMAINS=false
 
 PG_HOST=
 PG_DBNAME=

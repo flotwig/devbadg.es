@@ -1,0 +1,9 @@
+header .login-buttons img {
+    max-height: 32px;
+    cursor: pointer;
+    transition: .2s;
+    margin-right: .2em;
+}
+header .login-buttons button {
+    cursor: pointer;
+}

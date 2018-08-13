@@ -1,9 +1,25 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { hydrate } from 'react-dom';
 import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
-import registerServiceWorker from './registerServiceWorker';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import combinedReducer from './state/reducers.js';
 
-ReactDOM.hydrate(<BrowserRouter><App /></BrowserRouter>, document.getElementById('root'));
-registerServiceWorker();
+const preloadedState = window.__PRELOADED_STATE__
+
+delete window.__PRELOADED_STATE__
+
+const store = createStore(combinedReducer, preloadedState)
+
+hydrate(
+    (
+        <Provider store={store}>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </Provider>
+    ),
+    document.getElementById('root')
+);

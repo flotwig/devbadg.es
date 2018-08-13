@@ -11,10 +11,23 @@ if (!fs.existsSync('../.env')) {
 const path = require('path');
 require('dotenv').config({ path: '../.env' })
 
+// Set up proxy configuration.
+if (process.env.HTTP_PROXY) {
+    const globalTunnel = require('global-tunnel-ng');
+    const url = require('url');
+    const proxy = url.parse(process.env.HTTP_PROXY);
+    globalTunnel.initialize({
+        host: proxy.hostname,
+        port: parseInt(proxy.port, 10),
+        tunnel: 'both',
+        protocol: proxy.protocol
+    })
+}
+
 // Loads up Babel, which will allow us to import the ES6
 // code used on the frontend and in the rest of the server code.
 require('babel-register')({
-    presets: ['env', 'react']
+    presets: ['env', 'react', 'stage-0']
 });
 require('ignore-styles').default(['.css']);
 
@@ -22,12 +35,16 @@ require('ignore-styles').default(['.css']);
 const {default: Db} = require('./db.js');
 const db = new Db();
 
-// Configure passport strategies.
-const passport = require('passport');
-require('./providers/github-provider.js').default.configure(passport, db);
+db.sequelize.sync({
+    //force: true
+}).then(() => {
+    // Configure auth.
+    const {default: Auth} = require('./auth.js');
+    const auth = new Auth(db);
 
-// Start the server proper.
-const {default: Server} = require('./server.js');
+    // Start the server proper.
+    const {default: Server} = require('./server.js');
 
-const server = new Server(passport, db);
-server.start();
+    const server = new Server(auth, db);
+    server.start();
+})

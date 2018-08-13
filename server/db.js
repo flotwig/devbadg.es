@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import Promise from 'bluebird';
 
 export default class Db {
     constructor() {
@@ -7,22 +8,29 @@ export default class Db {
             host: process.env.PG_HOST
         })
         this.addModels();
-        this.sequelize.sync({
-            force: true
-        })
     }
 
     findAvailableSlug(slug, cb, i) {
-        if (i > 0) slug = slug + '-' + i;
+        let newSlug = slug;
+        if (i > 0) newSlug = slug + '-' + i;
         this.User.findOne({
-            where: { slug }
+            where: { slug: newSlug }
         }).then(user => {
             i = (i || 0) + 1;
             if (user) {
                 this.findAvailableSlug(slug, cb, i)
             } else {
-                cb(slug)
+                cb(newSlug)
             }
+        })
+    }
+
+    findOrCreateProvider(provider) {
+        return this.Provider.findOne({
+            where: { slug: provider.slug }
+        }).then(foundProvider => {
+            if (foundProvider) return foundProvider;
+            else return this.Provider.create(provider);
         })
     }
 
@@ -40,12 +48,14 @@ export default class Db {
             lastUsedAt: Sequelize.DATE,
             createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
         });
+        this.Token.prototype.getUrl = () =>
+            this.getProvider().then(p => `${process.env.BASE_URL}/tokens/${p.slug}/${this.tokenId}`)
         this.User = this.sequelize.define('user', {
             userId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
-            emailAddress: Sequelize.STRING,
+            emailAddress: { type: Sequelize.STRING },
             points: { type: Sequelize.INTEGER, defaultValue: 0 },
             badges: { type: Sequelize.INTEGER, defaultValue: 0 },
-            slug: { type: Sequelize.STRING, allowNull: false },
+            slug: { type: Sequelize.STRING, allowNull: false, unique: true },
             lastLoginAt: Sequelize.DATE,
             createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
         });
@@ -65,14 +75,14 @@ export default class Db {
             likeCount: { type: Sequelize.INTEGER, defaultValue: 0 },
             points: { type: Sequelize.INTEGER, defaultValue: 0 },
             earnedCount: { type: Sequelize.INTEGER, defaultValue: 0 },
-            slug: { type: Sequelize.STRING, allowNull: false },
+            slug: { type: Sequelize.STRING, allowNull: false, unique: true },
             name: { type: Sequelize.STRING, allowNull: false },
             description: { type: Sequelize.STRING, allowNull: false }
         });
         this.Provider = this.sequelize.define('provider', {
             providerId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
             name: { type: Sequelize.STRING, allowNull: false },
-            slug: { type: Sequelize.STRING, allowNull: false },
+            slug: { type: Sequelize.STRING, allowNull: false, unique: true },
             description: { type: Sequelize.STRING, allowNull: false },
             badgeCount: { type: Sequelize.INTEGER, defaultValue: 0 },
             earnedCount: { type: Sequelize.INTEGER, defaultValue: 0 },
