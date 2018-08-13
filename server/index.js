@@ -8,6 +8,7 @@ if (!fs.existsSync('../.env')) {
     console.error('Create a .env file with the variables from .env.ex filled out in this project\'s root directory.')
     process.exit()
 }
+const path = require('path');
 require('dotenv').config({ path: '../.env' })
 
 // Loads up Babel, which will allow us to import the ES6
