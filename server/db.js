@@ -41,8 +41,6 @@ export default class Db {
     addModels() {
         this.Token = this.sequelize.define('token', {
             tokenId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
-            //providerId: { type: Sequelize.BIGINT },
-            //userId: { type: Sequelize.BIGINT },
             remoteUsername: Sequelize.STRING,
             remoteId: Sequelize.STRING,
             accessToken: Sequelize.STRING,
@@ -65,16 +63,12 @@ export default class Db {
         });
         this.BadgeEvent = this.sequelize.define('badgeEvent', {
             eventId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
-            //userId: Sequelize.BIGINT,
-            //badgeId: Sequelize.BIGINT,
-            //tokenId: Sequelize.BIGINT,
             likeCount: { type: Sequelize.INTEGER, defaultValue: 0 },
             commentCount: { type: Sequelize.INTEGER, defaultValue: 0 },
             createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
         });
         this.Badge = this.sequelize.define('badge', {
             badgeId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
-            //providerId: Sequelize.BIGINT,
             commentCount: { type: Sequelize.INTEGER, defaultValue: 0 },
             likeCount: { type: Sequelize.INTEGER, defaultValue: 0 },
             points: { type: Sequelize.INTEGER, defaultValue: 0 },
@@ -92,8 +86,24 @@ export default class Db {
             earnedCount: { type: Sequelize.INTEGER, defaultValue: 0 },
             tokenCount: { type: Sequelize.INTEGER, defaultValue: 0 }
         });
+        this.GitScan = this.sequelize.define('gitScan', {
+            gitScanId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
+            commits: { type: Sequelize.BIGINT, defaultValue: 0 },
+            acceptedPrs: { type: Sequelize.BIGINT, defaultValue: 0 },
+            rejectedPrs: { type: Sequelize.BIGINT, defaultValue: 0 },
+            repositories: { type: Sequelize.BIGINT, defaultValue: 0 },
+            following: { type: Sequelize.BIGINT, defaultValue: 0 },
+            starred: { type: Sequelize.BIGINT, defaultValue: 0 },
+            forked: { type: Sequelize.BIGINT, defaultValue: 0 },
+            followers: { type: Sequelize.BIGINT, defaultValue: 0 },
+            stars: { type: Sequelize.BIGINT, defaultValue: 0 },
+            forks: { type: Sequelize.BIGINT, defaultValue: 0 },
+            createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+            endedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+        })
         this.Token.belongsTo(this.Provider, { foreignKey: 'providerId' });
         this.Token.belongsTo(this.User, { foreignKey: 'userId' });
+        this.GitScan.belongsTo(this.Token, { foreignKey: 'tokenId' })
         this.BadgeEvent.belongsTo(this.User, { foreignKey: 'userId' });
         this.BadgeEvent.belongsTo(this.Badge, { foreignKey: 'badgeId', });
         this.BadgeEvent.belongsTo(this.Token, { foreignKey: 'tokenId' });
