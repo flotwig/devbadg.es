@@ -9,10 +9,10 @@ import combinedReducer from '../src/state/reducers.js'
 import { setUser, receiveTokens } from '../src/state/actions.js'
 import Express from 'express';
 
-var template = fs.readFileSync('../build/index.html', 'utf8');
+var template = fs.readFileSync(`${__dirname}/../build/index.html`, 'utf8');
 
 export default function addReactToServer(express, db) {
-    express.use(Express.static('../build', { index: false }))
+    express.use(Express.static(`${__dirname}/../build`, { index: false }))
     express.use(ReactMiddleware)
     express.use('/tokens', (req, res, next) => {
         if (!req.user) return next()
@@ -37,7 +37,7 @@ function ReactMiddleware(req, res, next) {
 
 function ReactController(req, res) {
     if (process.env.NODE_ENV === 'development') {
-        template = fs.readFileSync('../build/index.html', 'utf8')
+        template = fs.readFileSync(`${__dirname}/../build/index.html`, 'utf8')
     }
     const context = {}
     const markup = renderToString(

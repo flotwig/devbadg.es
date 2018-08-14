@@ -1,6 +1,8 @@
 [devbadg.es](https://devbadg.es)
 ===
 
+[![Build Status](https://travis-ci.org/flotwig/devbadg.es.svg?branch=master)](https://travis-ci.org/flotwig/devbadg.es)
+
 ## Development
 
 Dependencies:

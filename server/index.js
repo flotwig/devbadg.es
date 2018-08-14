@@ -4,12 +4,12 @@
 
 // Load configuration.
 const fs = require('fs');
-if (!fs.existsSync('../.env')) {
+if (!fs.existsSync('../.env') && false) {
     console.error('Create a .env file with the variables from .env.ex filled out in this project\'s root directory.')
     process.exit()
 }
 const path = require('path');
-require('dotenv').config({ path: '../.env' })
+require('dotenv').config({ path: `${__dirname}/../.env` })
 
 // Set up proxy configuration.
 if (process.env.HTTP_PROXY) {

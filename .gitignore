@@ -2,6 +2,8 @@
 
 # configuration
 .env
+app.yaml
+gae.json
 
 # dependencies
 /node_modules

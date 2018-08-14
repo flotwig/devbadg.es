@@ -4,8 +4,12 @@ import Promise from 'bluebird';
 export default class Db {
     constructor() {
         this.sequelize = new Sequelize(process.env.PG_DBNAME, process.env.PG_USER, process.env.PG_PASS, {
+            host: process.env.PG_HOST,
+            logging: false,
             dialect: 'postgres',
-            host: process.env.PG_HOST
+            ssl: false, 
+            dialectOptions: { ssl: false },
+            operatorsAliases: false
         })
         this.addModels();
     }
