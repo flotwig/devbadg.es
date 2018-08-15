@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Header from './views/widgets/Header'
-import Router from './Router'
+import Routes from './Routes'
 import './App.css';
 
 class App extends Component {
@@ -11,7 +11,7 @@ class App extends Component {
           <Header/>
         </header>
         <main>
-          <Router/>
+          <Routes/>
         </main>
       </div>
     );

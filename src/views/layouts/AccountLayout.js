@@ -17,7 +17,7 @@ class AccountLayout extends Component {
                                         ['Profile', '/'],
                                         ['Settings', '/settings'],
                                         ['Tokens', '/tokens']
-                                    ].map(x => <Menu.Item key={x[0]} href={this.props.user.profileUrl + '/' + x[1]}>{x[0]}</Menu.Item>)
+                                    ].map(x => <Menu.Item key={x[0]} href={this.props.user.profileUrl + '/' + x[1]} >{x[0]}</Menu.Item>)
                                 }
                             </Menu>
                         </Grid.Column>
