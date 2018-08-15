@@ -21,6 +21,7 @@
     "ignore-styles": "^5.0.1",
     "passport": "^0.4.0",
     "passport-github": "^1.1.0",
+    "passport-stack-exchange": "^1.0.0",
     "pg": "^6.0.0",
     "sequelize": "^4.38.0"
   }

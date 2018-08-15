@@ -5,6 +5,7 @@ export default class Auth {
     constructor(db) {
         // Configure passport strategies.
         require('./providers/github-provider.js').default.configure(Passport, db);
+        require('./providers/stack-exchange-provider.js').default.configure(Passport, db);
         Passport.serializeUser(function(user, done) {
             done(null, user.get())
         })
@@ -25,12 +26,12 @@ export default class Auth {
         express.use(Passport.session())
     }
     addAuthRoutes(express) {
-        express.get('/auth/github', (req, res, next) => {
-            Passport.authenticate('github', { failureRedirect: '/auth/error' })(req, res, next)
+        express.get('/auth/:slug(github|stack-exchange)', (req, res, next) => {
+            Passport.authenticate(req.params.slug, { failureRedirect: '/auth/error' })(req, res, next)
         });
-        express.get('/auth/github/callback', (req, res, next) => {
+        express.get('/auth/:slug(github|stack-exchange)/callback', (req, res, next) => {
             // Route when a code is returned from the OAuth flow and we can retrieve a token.
-            Passport.authenticate('github', { failureRedirect: '/auth/error' }, (err, user, info) => {
+            Passport.authenticate(req.params.slug, { failureRedirect: '/auth/error' }, (err, user, info) => {
                 // This callback is called by the individual provider's passport.use callback
                 console.log(err, user, info)
                 if (err) {
