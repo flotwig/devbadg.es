@@ -15,7 +15,7 @@ export default class GitHubProvider {
                     passReqToCallback: true
                 },
                 function(req, accessToken, refreshToken, profile, done) {
-                    console.log(accessToken, refreshToken, profile);
+                    console.log(accessToken, profile);
                     const remoteUsername = profile['_json']['login']
                     const remoteId = profile['_json']['id'].toString()
                     const emailAddress = profile['_json']['email']
@@ -35,7 +35,7 @@ export default class GitHubProvider {
                                 // TODO
                             } else {
                                 // not logged in, log them in to this account
-                                token.getUser((user) => {
+                                token.getUser().then(user => {
                                     done(false, user, { 'justLoggedIn': true })
                                 })
                             }
@@ -43,7 +43,7 @@ export default class GitHubProvider {
                             // this is a token we haven't seen before
                             const token = {
                                 providerId: provider.providerId,
-                                remoteId, remoteUsername, accessToken, refreshToken
+                                remoteId, remoteUsername, accessToken
                             }
                             if (!req.user) {
                                 // not logged in, create account

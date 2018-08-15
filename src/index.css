@@ -1,1 +1,5 @@
-@import '~bootstrap/dist/css/bootstrap.min.css';
+@import '~semantic-ui-css/semantic.min.css';
+
+main > div:not(.flush) {
+    margin-top: 3.5em;
+}

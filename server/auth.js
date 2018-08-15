@@ -29,7 +29,9 @@ export default class Auth {
             Passport.authenticate('github', { failureRedirect: '/auth/error' })(req, res, next)
         });
         express.get('/auth/github/callback', (req, res, next) => {
+            // Route when a code is returned from the OAuth flow and we can retrieve a token.
             Passport.authenticate('github', { failureRedirect: '/auth/error' }, (err, user, info) => {
+                // This callback is called by the individual provider's passport.use callback
                 console.log(err, user, info)
                 if (err) {
                     req.session.flashMessage = 'Error while authenticating.'
@@ -38,19 +40,21 @@ export default class Auth {
                     } else {
                         res.redirect('/')
                     }
+                    res.end()
                 } else if (info.token) {
-                    token.getUrl().then(url => res.redirect(url))
-                } else if (info.justCreatedAccount) {
-                    req.login(user, () =>
-                        res.redirect('/#welcome')
-                    )
-                } else if (info.justLoggedIn) {
-                    req.login(user, () =>
+                    token.getUrl().then(url => {
+                        res.redirect(url)
+                        res.end()
+                    })
+                } else if (info.justCreatedAccount || info.justLoggedIn) {
+                    req.login(user, () => {
                         res.redirect('/') // TODO: redirect to where they were before
-                    )
+                        res.end()
+                    })
                 } else {
                     req.session.flashMessage = info.message
                     res.redirect('/tokens')
+                    res.end()
                 }
             })(req, res, next)
         })

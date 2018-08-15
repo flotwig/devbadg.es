@@ -1,26 +1,31 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, ListGroup, ListGroupItem, Nav, NavLink } from 'reactstrap';
 import { connect } from 'react-redux';
+import { Grid, Menu, Container } from 'semantic-ui-react';
+import AuthRequiredError from '../errors/AuthRequiredError';
 
 class AccountLayout extends Component {
     render() {
+        if (!this.props.user) return <AuthRequiredError/>
         return (
-            <Container>
-                <Row>
-                    <Col sm="3">
-                        <Nav>
-                            {
-                                [
-                                    ['Profile', '/'],
-                                    ['Tokens', '/tokens']
-                                ].map(x => <NavLink key={x[0]} href={x[1]}>{x[0]}</NavLink>)
-                            }
-                        </Nav>
-                    </Col>
-                    <Col sm="9">
-                        {this.props.children}
-                    </Col>
-                </Row>
+            <Container type="text">
+                <Grid relaxed>
+                    <Grid.Row>
+                        <Grid.Column width={3}>
+                            <Menu vertical>
+                                {
+                                    [
+                                        ['Profile', '/'],
+                                        ['Settings', '/settings'],
+                                        ['Tokens', '/tokens']
+                                    ].map(x => <Menu.Item key={x[0]} href={this.props.user.profileUrl + '/' + x[1]}>{x[0]}</Menu.Item>)
+                                }
+                            </Menu>
+                        </Grid.Column>
+                        <Grid.Column width={13}>
+                            {this.props.children}
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
             </Container>
         )
     }

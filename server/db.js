@@ -5,7 +5,7 @@ export default class Db {
     constructor() {
         this.sequelize = new Sequelize(process.env.PG_DBNAME, process.env.PG_USER, process.env.PG_PASS, {
             host: process.env.PG_HOST,
-            logging: false,
+            // logging: false,
             dialect: 'postgres',
             ssl: false, 
             dialectOptions: { ssl: false },
@@ -60,6 +60,13 @@ export default class Db {
             slug: { type: Sequelize.STRING, allowNull: false, unique: true },
             lastLoginAt: Sequelize.DATE,
             createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+        }, {
+            getterMethods: {
+                profileUrl() {
+                    const slug = this.getDataValue('slug')
+                    return process.env.USE_SUBDOMAINS ? process.env.BASE_URL.replace('//', `//${slug}.`) : `${process.env.BASE_URL}/user/${slug}`
+                }
+            }
         });
         this.BadgeEvent = this.sequelize.define('badgeEvent', {
             eventId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
