@@ -58,7 +58,8 @@
   "scripts": {
     "start": "node server/index.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js --env=jsdom"
+    "test": "node scripts/test.js --env=jsdom",
+    "postinstall": "cd server && yarn install"
   },
   "jest": {
     "collectCoverageFrom": [

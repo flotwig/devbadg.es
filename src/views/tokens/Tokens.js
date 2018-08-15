@@ -2,10 +2,15 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { deleteToken } from '../../state/actions'
 import TokenList from './TokenList'
+import AccountLayout from '../layouts/AccountLayout'
 
 class Tokens extends Component {
     render() {
-        return <TokenList tokens={this.props.tokens}/>
+        return (
+            <AccountLayout>
+                <TokenList tokens={this.props.tokens}/>
+            </AccountLayout>
+        )
     }
 }
 
