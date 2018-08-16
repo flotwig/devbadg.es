@@ -59,6 +59,7 @@
   "scripts": {
     "start": "node server/index.js",
     "start-react": "node server/start.js",
+    "watch": "sh ./scripts/watch.sh",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
     "postinstall": "cd server && yarn install"
