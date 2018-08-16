@@ -15,7 +15,7 @@ export default class GitHubProvider {
                     passReqToCallback: true
                 },
                 function(req, accessToken, refreshToken, profile, done) {
-                    console.log(accessToken, profile);
+                    console.log(accessToken, refreshToken, profile);
                     const remoteUsername = profile['_json']['login']
                     const remoteId = profile['_json']['id'].toString()
                     const emailAddress = profile['_json']['email']
