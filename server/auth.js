@@ -5,6 +5,7 @@ import url from 'url';
 export default class Auth {
     constructor(db) {
         // Configure passport strategies.
+        this.db = db
         require('./providers/github-provider.js').default.configure(Passport, db);
         require('./providers/stack-exchange-provider.js').default.configure(Passport, db);
         Passport.serializeUser(function(user, done) {
