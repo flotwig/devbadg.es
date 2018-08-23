@@ -108,6 +108,14 @@ export default class Db {
             createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
             endedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
         })
+        this.QaScan = this.sequelize.define('qaScan', {
+            qaScanId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
+            questions: { type: Sequelize.BIGINT, defaultValue: 0 },
+            answers: { type: Sequelize.BIGINT, defaultValue: 0 },
+            reputation: { type: Sequelize.BIGINT, defaultValue: 0 },
+            createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+            endedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+        })
         this.Token.belongsTo(this.Provider, { foreignKey: 'providerId' });
         this.Token.belongsTo(this.User, { foreignKey: 'userId' });
         this.GitScan.belongsTo(this.Token, { foreignKey: 'tokenId' })
