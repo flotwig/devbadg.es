@@ -1,8 +1,8 @@
 language: node_js
 node_js:
-  - 8.11.2
+- 8.11.2
 script:
-  - yarn build
+- yarn build
 deploy:
   skip_cleanup: true
   provider: gae
@@ -12,5 +12,6 @@ env:
   global:
     secure: oWMjJA+8QOXLcXybCJX+LlIWHtsvDI5n0tpGs+w36uvyQ3AxVDF+OATq7zaFAYN5r/Lh+qcT1mNNkOtj7Ye7/arkAvh8crRQa0OLeJrIVyk0DORfelTskCZw+vJ0aoHNkQ7KmAhq3cQxaxPswoByFN9njnwZ5Q/Qo1fWPzdCYVh/8ybSIIl9xz3FaVnNZ9Mcvz7AABwpK+0pL3gvuCHEcEGmtzLg9HL4lt6tUFos1184Vk/twMIX2c4oWXVzpFeUo+mrFzWd75BNtUgFDYqBzK9QbGkWVQw8bUhzNb2O2wbQ5fBMu3ZneAGhhSpnehlHLPYT5Zbe/TfoYiDMh2BKKzBD5kOuRda7Tfs/9ZbF94y+IK2r0oFg92VBQE1jZXVlqJykFZvJ7kPx1AmzsIxRJ/awtwuRu1dg93uD03wCmvM1JXHIZkom5OVVZPCURHjT77ipp3y/7N0Z1PGOLLAr2sRd+I6R3x4SCCytba8jly6mTCMQmCbsf5L5NVTORTCkPKGJkNcEavKQqMoZjqz90lX8EERQJdig549OEgGV2EXeex4kcS/PKMwWn+gQhuQ7EvNAJXe1cPsQqOw3kkAS2bYrsIAGshBACOuC5Wuffg1bsVfvgo/sxxdC0OE71rJclsqDTuMJ04pj5Fo9AtI7BocETP4OQOYZskNg8JpKKDo=
 before_install:
-  - echo $key | gpg --passphrase-fd 0 --output gae.json config/travis/gae.json.gpg
-  - echo $key | gpg --passphrase-fd 0 --output app.yaml config/travis/app.yaml.gpg
+- openssl aes-256-cbc -K $encrypted_66bf10c253c0_key -iv $encrypted_66bf10c253c0_iv
+  -in config/travis/app.yaml.enc -out app.yaml -d
+- echo $key | gpg --passphrase-fd 0 --output gae.json config/travis/gae.json.gpg
