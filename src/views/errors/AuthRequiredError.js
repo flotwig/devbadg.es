@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Icon, Message, Container } from 'semantic-ui-react';
 
-export default class NotFoundError extends Component {
+export default class AuthRequiredError extends Component {
     render() {
         if (this.props.staticContext)
             this.props.staticContext.status = 401;

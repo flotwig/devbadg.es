@@ -9,10 +9,16 @@ export default class Auth {
         require('./providers/github-provider.js').default.configure(Passport, db);
         require('./providers/stack-exchange-provider.js').default.configure(Passport, db);
         Passport.serializeUser(function(user, done) {
-            done(null, user.get())
+            done(null, user.userId)
         })
-        Passport.deserializeUser(function(user, done) {
-            done(null, db.User.build(user))
+        Passport.deserializeUser(function(userId, done) {
+            db.User.findOne({
+                where: { userId }
+            }).then(user => {
+                // https://github.com/jwalton/passport-api-docs#passportdeserializeuserfnserializeduser-done--fnreq-serializeduser-done
+                // "...the deserialize function should pass null or false for the user, not undefined."
+                done(null, user ? user : false)
+            })
         })
     }
     addAuthToServer(express) {
@@ -21,10 +27,8 @@ export default class Auth {
     }
     addAuthMiddleware(express) {
         const hostParts = url.parse(process.env.BASE_URL).host.split('.')
-        var cookieDomain;
-        if(hostParts.length === 1)
-            cookieDomain = hostParts[0]
-        else
+        var cookieDomain = undefined;
+        if(hostParts.length > 1)
             cookieDomain = hostParts[hostParts.length - 2] + '.' + hostParts[hostParts.length - 1]
         express.use(new Session({
             secret: process.env.SESSION_SECRET,
@@ -43,7 +47,7 @@ export default class Auth {
                 where: { slug }
             }).then(provider => {
                 if (provider) Passport.authenticate(provider.slug, { failureRedirect: '/auth/error' })(req, res, next)
-                else next()
+                else next() // provider not found
             })
         });
         express.get('/auth/:slug/callback', (req, res, next) => {
@@ -54,7 +58,6 @@ export default class Auth {
             }).then(provider => {
                 if (provider)
                     Passport.authenticate(req.params.slug, { failureRedirect: '/auth/error' }, (err, user, info) => {
-                        // This callback is called by the individual provider's passport.use callback
                         console.log(err, user, info)
                         if (err) {
                             req.session.flashMessage = 'Error while authenticating.'
@@ -63,24 +66,20 @@ export default class Auth {
                             } else {
                                 res.redirect('/')
                             }
-                            res.end()
                         } else if (info.token) {
                             token.getUrl().then(url => {
                                 res.redirect(url)
-                                res.end()
                             })
                         } else if (info.justCreatedAccount || info.justLoggedIn) {
                             req.login(user, () => {
                                 res.redirect('/') // TODO: redirect to where they were before
-                                res.end()
                             })
                         } else {
                             req.session.flashMessage = info.message
                             res.redirect('/tokens')
-                            res.end()
                         }
                     })(req, res, next)
-                else next()
+                else next() // provider not found
             })
         })
     }

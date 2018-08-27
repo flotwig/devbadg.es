@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Item, Button } from 'semantic-ui-react';
-import { Ago } from 'react-ago-component';
+import Ago from 'react-ago-component';
 
 export default class TokenListItem extends Component {
     render() {

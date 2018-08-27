@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "~8.11.2"
+    "node": "^8.9.4"
   },
   "dependencies": {
     "autoprefixer": "7.1.6",
@@ -58,7 +58,7 @@
   },
   "scripts": {
     "start": "node server/index.js",
-    "start-react": "node server/start.js",
+    "start-react": "node scripts/start.js",
     "watch": "sh ./scripts/watch.sh",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
