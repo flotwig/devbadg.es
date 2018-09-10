@@ -7,6 +7,14 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Start Server (with nvm)",
+            "program": "${workspaceFolder}/server/index.js",
+            "runtimeExecutable": "${workspaceRoot}/scripts/nvm.sh",
+            "cwd": "${workspaceFolder}/server/"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Start Server",
             "program": "${workspaceFolder}/server/index.js",
             "cwd": "${workspaceFolder}/server/"
