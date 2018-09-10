@@ -3,6 +3,11 @@ import { handleRemoteAuth } from './util';
 
 export default class StackExchangeProvider {
     static configure(passport, db) {
+        db.Statistic.load({
+            'questions': 'Questions Asked',
+            'answers': 'Questions Answered',
+            'reputation': 'Reputation'
+        })
         // each site has its own API situation, create a provider for each lol
         [
             {
