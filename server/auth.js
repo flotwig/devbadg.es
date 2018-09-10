@@ -1,13 +1,13 @@
 import Passport from 'passport';
 import Session from 'express-session';
 import url from 'url';
+import fs from 'fs';
 
 export default class Auth {
     constructor(db) {
         // Configure passport strategies.
         this.db = db
-        require('./providers/github-provider.js').default.configure(Passport, db);
-        require('./providers/stack-exchange-provider.js').default.configure(Passport, db);
+        this.loadProviders();
         Passport.serializeUser(function(user, done) {
             done(null, user.userId)
         })
@@ -19,6 +19,12 @@ export default class Auth {
                 // "...the deserialize function should pass null or false for the user, not undefined."
                 done(null, user ? user : false)
             })
+        })
+    }
+    loadProviders() {
+        fs.readdir('./providers', (err, files) => {
+            files.filter(path => path.match('.*-provider\.js'))
+                 .map(path => require(`./providers/${path}`).default.configure(Passport, this.db))
         })
     }
     addAuthToServer(express) {
