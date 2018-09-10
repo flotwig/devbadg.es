@@ -1,3 +1,5 @@
+import ScanQueue from '../scan-queue.js';
+
 /**
  * Function to either log a user in or create an account or associate their account with a remote provider.
  * 
@@ -44,14 +46,17 @@ export function handleRemoteAuth(db, req, provider, userToken, done) {
                     }).then((user) => {
                         // attach token
                         userToken.userId = user.userId
-                        db.Token.create(userToken).then(()=>
-                            done(false, user, { 'justCreatedAccount': true }));
+                        db.Token.create(userToken).then(token=>{
+                            ScanQueue.enqueue(token.tokenId);
+                            done(false, user, { 'justCreatedAccount': true })
+                        });
                     })
                 })
             } else {
                 // attach token
                 userToken.userId = req.user.userId
                 db.Token.create(userToken).then(token => {
+                    ScanQueue.enqueue(token.tokenId)
                     done(false, req.user, { token })
                 })
             }

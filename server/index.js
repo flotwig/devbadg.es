@@ -36,8 +36,12 @@ const {default: Db} = require('./db.js');
 const db = new Db();
 
 db.sequelize.sync({
-    //force: true
+    force: true
 }).then(() => {
+    // Configure scan queue.
+    const {default: ScanQueue} = require('./scan-queue.js');
+    const scanQueue = new ScanQueue(db);
+
     // Configure auth.
     const {default: Auth} = require('./auth.js');
     const auth = new Auth(db);

@@ -84,6 +84,10 @@ export default class Db {
             name: { type: Sequelize.STRING, allowNull: false },
             description: { type: Sequelize.STRING, allowNull: false }
         });
+        this.BadgeTrigger = this.sequelize.define('badgeTrigger', {
+            badgeTriggerId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
+            minimum: { type: Sequelize.BIGINT }
+        })
         this.Provider = this.sequelize.define('provider', {
             providerId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
             name: { type: Sequelize.STRING, allowNull: false },
@@ -93,35 +97,61 @@ export default class Db {
             earnedCount: { type: Sequelize.INTEGER, defaultValue: 0 },
             tokenCount: { type: Sequelize.INTEGER, defaultValue: 0 }
         });
-        this.GitScan = this.sequelize.define('gitScan', {
-            gitScanId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
-            commits: { type: Sequelize.BIGINT, defaultValue: 0 },
-            acceptedPrs: { type: Sequelize.BIGINT, defaultValue: 0 },
-            rejectedPrs: { type: Sequelize.BIGINT, defaultValue: 0 },
-            repositories: { type: Sequelize.BIGINT, defaultValue: 0 },
-            following: { type: Sequelize.BIGINT, defaultValue: 0 },
-            starred: { type: Sequelize.BIGINT, defaultValue: 0 },
-            forked: { type: Sequelize.BIGINT, defaultValue: 0 },
-            followers: { type: Sequelize.BIGINT, defaultValue: 0 },
-            stars: { type: Sequelize.BIGINT, defaultValue: 0 },
-            forks: { type: Sequelize.BIGINT, defaultValue: 0 },
-            createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-            endedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
-        })
-        this.QaScan = this.sequelize.define('qaScan', {
-            qaScanId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
-            questions: { type: Sequelize.BIGINT, defaultValue: 0 },
-            answers: { type: Sequelize.BIGINT, defaultValue: 0 },
-            reputation: { type: Sequelize.BIGINT, defaultValue: 0 },
-            createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-            endedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
-        })
+        this.Scan = this.sequelize.define('scan', {
+            scanId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
+            value: { type: Sequelize.BIGINT },
+            createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+        });
+        this.Scan.record = function(statisticSlug, value, token) {
+            this.sequelize.query('SELECT * FROM scans s \
+                RIGHT JOIN statistics t WHERE s."statisticId" = t."statisticId" \
+                WHERE t.slug = :statisticSlug AND s."tokenId" = :tokenId \
+                ORDER BY s."createdAt" DESC \
+                LIMIT 1;', { 
+                    replacements: {
+                        statisticSlug,
+                        tokenId: token.id
+                    },
+                    model: this 
+                }).then(scans => {
+                    if (scans.length === 0 || scans[0].value !== value) {
+                        // new datapoint!
+                        this.sequelize.query('INSERT INTO scans \
+                        ("tokenId", value, "statisticId") VALUES \
+                        (:tokenId, :value, \
+                            (SELECT "statisticId" FROM statistics WHERE slug = :statisticSlug));'
+                        )
+                        // TODO: run badge triggers
+                    }
+                })
+        }
+        this.Statistic = this.sequelize.define('statistic', {
+            statisticId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
+            slug: { type: Sequelize.STRING, allowNull: false, unique: true },
+            name: { type: Sequelize.STRING, allowNull: false }
+        });
+        this.Statistic.load = function(statistics) {
+            Object.keys(statistics).map(statistic => {
+                this.findOrCreate({
+                    where: {
+                        'slug': statistic
+                    },
+                    defaults: {
+                        'slug': statistic,
+                        'name': statistics[statistic]
+                    }
+                }).spread((result, created) => true)
+            })
+        }
+        this.Scan.belongsTo(this.Token, { foreignKey: 'tokenId' });
+        this.Scan.belongsTo(this.Statistic, { foreignKey: 'statisticId' });
         this.Token.belongsTo(this.Provider, { foreignKey: 'providerId' });
         this.Token.belongsTo(this.User, { foreignKey: 'userId' });
-        this.GitScan.belongsTo(this.Token, { foreignKey: 'tokenId' })
         this.BadgeEvent.belongsTo(this.User, { foreignKey: 'userId' });
         this.BadgeEvent.belongsTo(this.Badge, { foreignKey: 'badgeId', });
         this.BadgeEvent.belongsTo(this.Token, { foreignKey: 'tokenId' });
+        this.BadgeTrigger.belongsTo(this.Badge, { foreignKey: 'badgeId' });
+        this.BadgeTrigger.belongsTo(this.Statistic, { foreignKey: 'statisticId' });
         this.Badge.belongsTo(this.Provider, { foreignKey: 'providerId' });
     }
 }

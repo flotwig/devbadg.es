@@ -3,6 +3,18 @@ import { handleRemoteAuth } from './util';
 
 export default class GitHubProvider {
     static configure(passport, db) {
+        db.Statistic.load({
+            'commits': 'Commits',
+            'acceptedPrs': 'Accepted Pull Requests',
+            'rejectedPrs': 'Rejected Pull Requests',
+            'repositories': 'Repositories',
+            'following': 'Users Following',
+            'starred': 'Repos Starred',
+            'forked': 'Repos Forked',
+            'followers': 'Followers',
+            'stars': 'Stars on Projects',
+            'forks': 'Forks on Projects'
+        })
         db.findOrCreateProvider({
             'name': 'GitHub',
             'slug': 'github',
@@ -27,5 +39,9 @@ export default class GitHubProvider {
                 }
             ))
         )
+    }
+
+    static scan(token, cb) {
+        // TODO
     }
 }

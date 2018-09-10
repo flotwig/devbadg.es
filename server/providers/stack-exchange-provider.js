@@ -75,4 +75,8 @@ export default class StackExchangeProvider {
             )
         )
     }
+
+    static scan(token, cb) {
+
+    }
 }
