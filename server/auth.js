@@ -22,9 +22,9 @@ export default class Auth {
         })
     }
     loadProviders() {
-        fs.readdir('./providers', (err, files) => {
+        fs.readdir(`${__dirname}/providers`, (err, files) => {
             files.filter(path => path.match('.*-provider\.js'))
-                 .map(path => require(`./providers/${path}`).default.configure(Passport, this.db))
+                 .map(path => require(`${__dirname}/providers/${path}`).default.configure(Passport, this.db))
         })
     }
     addAuthToServer(express) {
