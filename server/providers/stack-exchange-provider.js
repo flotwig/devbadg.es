@@ -1,7 +1,18 @@
 import Strategy from 'passport-stack-exchange';
 import { handleRemoteAuth } from './util';
+import request from 'request';
 
+const SE_BASEURL = 'https://api.stackexchange.com/2.2/';
+
+/**
+ * Provider for the Stack Exchange family of question and answer sites.
+ */
 export default class StackExchangeProvider {
+    /**
+     * Configure the provider.
+     * @param {Passport} passport 
+     * @param {Db} db 
+     */
     static configure(passport, db) {
         db.Statistic.load({
             'questions': 'Questions Asked',
@@ -60,14 +71,15 @@ export default class StackExchangeProvider {
                         stackAppsKey: process.env.SE_KEY,
                         callbackURL: `${process.env.BASE_URL}/auth/${site.slug}/callback`,
                         passReqToCallback: true,
-                        site: site.slug
+                        site: site.slug,
+                        scope: 'no_expiry'
                     },
                     function(req, accessToken, refreshToken, profile, done) {
                         console.log(accessToken, refreshToken, profile);
                         const token = {
                             providerId: provider.providerId,
                             remoteUsername: profile['displayName'],
-                            remoteId: profile['id'].toString(),
+                            remoteId: profile['_json']['items'][0]['account_id'].toString(),
                             emailAddress: profile['_json']['email'],
                             accessToken
                         }
@@ -81,7 +93,12 @@ export default class StackExchangeProvider {
         )
     }
 
+    /**
+     * Scan the data corresponding
+     * @param {Token} token Token object to scan for.
+     * @param {Function} cb Callback to accept the dictionary of statistic values found and/or an error.
+     */
     static scan(token, cb) {
-
+        
     }
 }

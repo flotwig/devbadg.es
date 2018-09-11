@@ -1,6 +1,9 @@
 import Sequelize from 'sequelize';
 import Promise from 'bluebird';
 
+/**
+ * Database access object.
+ */
 export default class Db {
     constructor() {
         this.sequelize = new Sequelize(process.env.PG_DBNAME, process.env.PG_USER, process.env.PG_PASS, {
@@ -14,6 +17,12 @@ export default class Db {
         this.addModels();
     }
 
+    /**
+     * Function that will iterate through used user slugs until a unique one is found.
+     * @param {*} slug Slug to start with.
+     * @param {Function} cb Callback to accept the first found slug.
+     * @param {*} i Optional. Current number to append to the `slug`.
+     */
     findAvailableSlug(slug, cb, i) {
         let newSlug = slug;
         if (i > 0) newSlug = slug + '-' + i;
@@ -29,6 +38,10 @@ export default class Db {
         })
     }
 
+    /**
+     * Find a provider in the database by slug or create it.
+     * @param {Provider} provider 
+     */
     findOrCreateProvider(provider) {
         return this.Provider.findOne({
             where: { slug: provider.slug }
@@ -38,6 +51,9 @@ export default class Db {
         })
     }
 
+    /**
+     * Configure the sequelize ORM with the models and relationships used.
+     */
     addModels() {
         this.Token = this.sequelize.define('token', {
             tokenId: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
@@ -102,6 +118,14 @@ export default class Db {
             value: { type: Sequelize.BIGINT },
             createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
         });
+        /**
+         * Record a Statistic datapoint for a single Token. If the supplied `value` is different
+         * than the most recent value for that `token` and `statisticSlug` combination, or if no
+         * such combination exists, then a new `Scan` will be recorded.
+         * @param {string} statisticSlug slug of statistic being recorded
+         * @param {number} value latest value
+         * @param {Token} token Token to record Scan for
+         */
         this.Scan.record = function(statisticSlug, value, token) {
             this.sequelize.query('SELECT * FROM scans s \
                 RIGHT JOIN statistics t WHERE s."statisticId" = t."statisticId" \
@@ -130,6 +154,10 @@ export default class Db {
             slug: { type: Sequelize.STRING, allowNull: false, unique: true },
             name: { type: Sequelize.STRING, allowNull: false }
         });
+        /**
+         * Synchronizes a dictionary of statistic slug -> name pairs to the database.
+         * @param {Object} statistics Statistics to load
+         */
         this.Statistic.load = function(statistics) {
             Object.keys(statistics).map(statistic => {
                 this.findOrCreate({
@@ -143,6 +171,9 @@ export default class Db {
                 }).spread((result, created) => true)
             })
         }
+        /**
+         * Foreign Keys
+         */
         this.Scan.belongsTo(this.Token, { foreignKey: 'tokenId' });
         this.Scan.belongsTo(this.Statistic, { foreignKey: 'statisticId' });
         this.Token.belongsTo(this.Provider, { foreignKey: 'providerId' });

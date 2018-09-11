@@ -11,6 +11,11 @@ import Express from 'express';
 
 var template = fs.readFileSync(`${__dirname}/../build/index.html`, 'utf8');
 
+/**
+ * Add the necessary React middleware and routes to an Express instance.
+ * @param {Express} express Express instance to attach to.
+ * @param {Db} db Database instance to use.
+ */
 export default function addReactToServer(express, db) {
     express.use(Express.static(`${__dirname}/../build`, { index: false }))
     express.use(ReactMiddleware)
@@ -27,6 +32,13 @@ export default function addReactToServer(express, db) {
     express.use(ReactController);
 }
 
+/**
+ * React middleware. Creates the Redux Store using the known reducers. Because req.store is set,
+ * the corresponding API routes will fill in the store instead of returning JSON. // TODO: <-- implement this, this is a good way of doing it!!!
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 function ReactMiddleware(req, res, next) {
     req.store = createStore(combinedReducer)
     if (req.user) {
@@ -35,6 +47,13 @@ function ReactMiddleware(req, res, next) {
     next()
 }
 
+/**
+ * Controller to render the React page to HTML using the preloaded state.
+ * The HTML and preloaded state will be hydrated by React on the client-side on load.
+ * By rendering it server-side first, we save time on initial load. We also improve SEO.
+ * @param {*} req 
+ * @param {*} res 
+ */
 function ReactController(req, res) {
     if (process.env.NODE_ENV === 'development') {
         template = fs.readFileSync(`${__dirname}/../build/index.html`, 'utf8')

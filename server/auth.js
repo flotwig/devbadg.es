@@ -3,11 +3,14 @@ import Session from 'express-session';
 import url from 'url';
 import fs from 'fs';
 
+/**
+ * Handles the various external authentication flows as well as user creation and login.
+ */
 export default class Auth {
     constructor(db) {
         // Configure passport strategies.
         this.db = db
-        this.loadProviders();
+        this.loadProviders(db);
         Passport.serializeUser(function(user, done) {
             done(null, user.userId)
         })
@@ -21,10 +24,10 @@ export default class Auth {
             })
         })
     }
-    loadProviders() {
+    loadProviders(db) {
         fs.readdir(`${__dirname}/providers`, (err, files) => {
             files.filter(path => path.match('.*-provider\.js'))
-                 .map(path => require(`${__dirname}/providers/${path}`).default.configure(Passport, this.db))
+                 .map(path => require(`${__dirname}/providers/${path}`).default.configure(Passport, db))
         })
     }
     addAuthToServer(express) {

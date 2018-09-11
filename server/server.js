@@ -1,6 +1,9 @@
 import Express from 'express';
 import addReactToServer from './react-controller.js';
 
+/**
+ * Web server component.
+ */
 export default class Server {
     constructor(auth, db) {
         this.auth = auth
@@ -16,6 +19,9 @@ export default class Server {
             console.log('Listening on port ' + this.port)
         });
     }
+    /**
+     * Middleware to force HTTPS on the live GAE instance.
+     */
     useHttps = (req, res, next) => {
         if (req.get('X-Forwarded-Proto') === 'http')
             res.redirect(301, `https://${req.hostname}${req.originalUrl}`)

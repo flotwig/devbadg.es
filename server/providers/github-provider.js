@@ -1,7 +1,15 @@
 import { Strategy } from 'passport-github';
 import { handleRemoteAuth } from './util';
 
+/**
+ * Provider for the GitHub source code website.
+ */
 export default class GitHubProvider {
+    /**
+     * Configure the provider.
+     * @param {Passport} passport 
+     * @param {Db} db 
+     */
     static configure(passport, db) {
         db.Statistic.load({
             'commits': 'Commits',
@@ -41,6 +49,11 @@ export default class GitHubProvider {
         )
     }
 
+    /**
+     * Scan the data corresponding to a GitHub profile
+     * @param {Token} token Token object to scan for.
+     * @param {Function} cb Callback to accept the dictionary of statistic values found and/or an error.
+     */
     static scan(token, cb) {
         // TODO
     }
